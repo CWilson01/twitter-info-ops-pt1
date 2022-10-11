@@ -1,0 +1,348 @@
+---
+title: "Analyzing Recent Twitter Information Operations to Improve Detection and Removal of Malicious Actors, Part 1"
+description: | 
+  A descriptive analysis of recent Russian, Iranian,and Chinese Information Operations intended to test theoretical frameworks in the literature and to provide ways for social media companies to combat malicious actors.
+date: 8/12/2022
+author:
+  - name: Cody J. Wilson 
+    url: https://wonksecurity.com
+citation:
+  url: https://wonksecurity.com/info-ops
+bibliography: biblio.bib
+format:
+  docx
+always_allow_html: true
+editor: visual
+---
+
+# Introduction
+
+On July 23, 2020, a handful of Twitter users began tweeting material containing the hashtag #RamaphosaResigns, referring to the resignation of South African President Cyril Ramaphosa. These accounts flooded the South African Twittersphere with the hashtag in the early morning hours, when few other users were online. Upon waking, South African Twitter users saw the hashtag trending and started talking about the surprise resignation, eventually leading the media to pick up on the story. The only problem was: Ramaphosa had not resigned and legitimate users had been tricked into perpetuating a false narrative [@jeanleroux2020].
+
+In recent years, Twitter and other social media platforms have been prominent targets of malign actors and their information operations.[^1] Despite their best efforts, social media companies have struggled to find a way to stem the tide of disinformation. In fact, their efforts have, at times, been met with backlash, some of which is arguably merited. [A Lawfare article](https://www.lawfareblog.com/anti-censorship-legislation-flawed-attempt-address-legitimate-problem) my colleagues and I wrote digs into some of these issues and the challenges involved in combating disinformation on social media in light of this backlash. One of the biggest challenges, however, is that information operations are constantly evolving in a perpetual cat and mouse effort to evade detection. Worse yet, malign actors learn from each other to adapt new tactics. This was one of the main conclusions my co-authors and I put forth in a [recent report](https://valensglobal.com/blind-sided/) titled *Blind Sided: A Reconceptualization of the Role of Emerging Technologies in Shaping the Tactics, Techniques and Procedures of Information Operations in the Grey Zone,* which, among other things, introduces a tactic-centric way of looking at information operations (IOs). That report is the inspiration for this one.
+
+[^1]: An information operation is a form of warfare that uses information to target a specific population with a tailored message aimed at furthering some larger goal. These operations can take the form of mis/disinformation campaigns, efforts to mobilize individuals in furtherance of a goal, or to even prevent people from doing something.
+
+In 2021, Twitter reported takedowns of several information operations on its platform, including a Chinese operation focusing on the Uyghur population in Xinjiang Province, an Iranian operation, and a Russian Internet Research Agency operation. Using datasets provided by Twitter containing tweets from the offending accounts, this series of reports examines some of the key similarities and differences across these three information operations. This particular study (the first of hopefully several) asks: what was the estimated reach of these IOs? The purpose of this report is to shed some light on the return on investment that malign actors get from running an IO targeting a specific audience in order to highlight the importance of disrupting IOs that seek to undermine political stability. The broader goal of the entire series of reports, once they are completed, is to provide insights that can improve the detection and removal of IO accounts from social media platforms like Twitter.
+
+# Methodology
+
+To prepare for this analysis, several data sets were acquired. The three data sets of interest were acquired from Twitter's Transparency Center[@twittertransparencycenter2022a].
+
+The first Twitter data set contained over 15,000 tweets from a suspected Chinese information operation focusing on Uyghur Muslims in China's Xinjiang Province. The take-down of these accounts was announced in December 2021 [@twittersafety2021]. The second Twitter data set contained almost 70,000 tweets from a suspected Russian Internet Research Agency (IRA) operation focusing on the United States and European Union. The take-down was announced in February 2021. As part of this same announcement in February 2021, the take-down of tweets comprising the third data set was also announced. This data set consisted of over 560,000 tweets from suspected Iranian accounts that had originally tried to influence the 2020 U.S. Presidential election [@twittersafety2021a].
+
+These three data sets from China, Russia, and Iran were selected as recent examples of suspected information operations conducted by actors that represent significant security challenges for Western democracies, particularly the United States. One operation from each country was chosen to compare and contrast the overall structures and characteristics of each operation from the others to see if there is any indication of operational learning. With the exclusion of Russia, the data sets were the most recently announced take-downs conducted by Twitter, suggesting the most up-to-date tactics could be seen within them. With regard to Russia, a December 2021 operation by the IRA targeting parts central Africa was available [@twittersafety2021]. However, the data set contained only 16 accounts, prompting concern from the author that the data set would not contain as much variety of tweets as the other two data sets. The Russia data set contained in this analysis is also smaller than its counterparts but not quite as small as the data set from December 2021.
+
+After the data were selected, the Twitter data sets had to be cleaned and prepared for analysis. All data cleaning, transformation, and analysis were conducted in the R statistical programming language and RStudio. The R scripts used in this analysis and the Quarto markdown file used to produce this report will be made available at <https://github.com/CWilson01>.
+
+The Twitter data sets were cleaned up and transformed in the following ways: the variables *tweetid, in_reply_to_userid, in_reply_to_tweetid, quoted_tweet_tweetid, retweet_userid, retweet_tweetid, user_mentions* were converted from numbers to characters to ensure no descriptive statistics would be inadvertently calculated from these unique identifiers. It is important to note at this point many of these unique identifiers were hashed by Twitter for accounts with under 5,000 followers to protect the anonymity of the users on the off chance that the account was included in the data set erroneously. In some of the findings that follow, these hashed values will be presented in tables in the hope that the unhashed values will one day be made available again to researchers for download, but it is important to keep in mind that these hashed values cannot currently be used to identify the user ID or account screen name of these accounts. After these conversions were made, tweet hashtags were converted to all lowercase for a future analysis project, brackets and single quotes were stripped from the hashtags and user_mentions variables, and NAs were introduced where data was missing. The cleaned files were then saved to new files for descriptive analysis.
+
+For each of the three Twitter data sets, the following questions were used to guide the descriptive analysis of the data: "How many unique accounts?", "How many unique tweets?", "What are the average tweets per account?", "What is the distribution of the dates of the tweets?", "What is the distribution of account creation date?", "How many followers does each account have?", "How many other accounts does each account follow?," "What is the proportion of retweets?", "What are the amplification metrics for each data set?" This last question pertained to the number of quotes, replies, retweets, and likes for the tweets in each data set. Such metrics are useful for trying to get a sense of how many people may have interacted with the tweets produced by each information operation.
+
+# Findings
+
+On February 23, 2021, Twitter announced the takedown of a Russian IRA information operation, comprised of 31 accounts, as well as an Iranian information operation comprised of 238 accounts. Both of these operations were targeting the West [@twittersafety2021a]. Later that year, on December 2, 2021, Twitter also announced the takedown of a presumably quite large Chinese information operation. Twitter released a data set containing what it calls a "representative sample of 2,048 accounts" from the operation. The operation was amplifying Chinese Communist Party rhetoric regarding the oppressed Uyghur Muslim population in Xinjiang Province [@twittersafety2021]. @tbl-descriptive below shows an overview of the scale of each operation based on the tweet data sets made available by Twitter.
+
+```{r}
+#| echo: false
+#| label: tbl-descriptive
+#| tbl-cap-location: bottom
+#| tbl-cap: Comparison of Russian, Iranian, and Chinese Twitter Activity
+suppressPackageStartupMessages(library(tidyverse))
+library(kableExtra, warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE)
+
+# Disabling scientific notation to improve readability of certain variables.
+# options(scipen=0, digits=7) # To return to default setting
+options(scipen = 999)
+
+# Setting seed for results replication
+set.seed(12345)
+
+russia_clean <- read_csv("russia_2021_cleaned.csv", show_col_types = FALSE)
+iran_clean <- read_csv("iran_2021_cleaned.csv", show_col_types = FALSE)
+china_clean <- read_csv("china_2021_cleaned.csv", show_col_types = FALSE)
+
+# How many unique accounts?
+r1 <- length(unique(russia_clean[["userid"]]))
+i1 <- length(unique(iran_clean[["userid"]]))
+c1 <- length(unique(china_clean[["userid"]]))
+
+# How many unique tweets?
+r2 <- length(unique(russia_clean[["tweetid"]]))
+i2 <- length(unique(iran_clean[["tweetid"]]))
+c2 <- length(unique(china_clean[["tweetid"]]))
+
+# Average tweets per account
+r3 <- signif(r2 / r1, 4)
+i3 <- signif(i2 / i1, 4)
+c3 <- signif(c2 / c1, 4)
+
+rs <- data.frame(Metrics = c('Accounts', 'Tweets', 'Tweets per account'), Russia = c(r1, r2, r3), Iran = c(i1, i2, i3), China = c(as.character(c1), c2, c3))
+
+kbl(rs, format = "html", align = "c") %>%
+  kable_classic(full_width = T) %>%
+  row_spec(0, bold = T)
+
+
+```
+
+One important thing that immediately stands out about this table is the number of accounts in each data set are all lower than the numbers Twitter reported removing. This could suggest that these accounts simply did not tweet but were nonetheless suspected by Twitter to be affiliated with the information operation for any number of reasons, such as having the same IP address or exhibiting similar patterns of behavior as those seen in the data set. Next, we can see that the number of tweets and the average tweets per account varies widely across the three operations. While the Chinese operation had an order of magnitude more accounts in its network, each account tweeted significantly less than the other operations, resulting in the lowest number of tweets produced. We see that Russian IRA operation was the smallest, but its very active accounts actually produced more content per account than both of the other operations. Iran's operation produced the most overall tweets, with over half a million tweets made.
+
+We now turn our attention to the distribution of tweets for each information operation, seen in @fig-tweettime below. For both the Russian and Iranian information operations, the majority of tweets took place in 2020, with the Russian operation having a large amount of tweets also in 2018 and 2019, though to a lesser extent. Perhaps most interesting of all is the length of time that these accounts were tweeting in the Russian and Iranian operations. The graphs in @fig-tweettime clearly show that the accounts were tweeting for quite some time, dating back to 2009, suggesting either a very long-term strategy or perhaps that the accounts had been acquired some time after their creation. The Chinese operation differs from the Iranian and Russian operations by being exclusively active in the first four months of 2021.
+
+```{r, fig.height=7, fig.pos='H'}
+#| echo: false
+#| label: fig-tweettime
+#| fig-cap-location: top
+#| fig-cap: Distribution of Tweets by Information Operation
+library(gridExtra, warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE)
+library(lubridate, warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE)
+
+russia_clean$tweet_year <- year(russia_clean$tweet_time)
+
+tt1 <- ggplot(russia_clean, aes(x = tweet_year)) +
+  geom_bar(fill = "#0072CE") +
+  scale_x_continuous(n.breaks = 8) +
+  labs(x = "Year", y = "Tweets", title = "Russia (2009-2020)") +
+  theme_minimal()
+
+
+iran_clean$tweet_year <- year(iran_clean$tweet_time)
+
+tt2 <- ggplot(iran_clean, aes(x = tweet_year)) +
+  geom_bar(fill = "#009639")+
+  scale_x_continuous(n.breaks = 8) +
+  labs(x = "Year", y = "Tweets", title = "Iran (2009-2020)") +
+  theme_minimal()
+
+china_clean$tweet_month <- month(china_clean$tweet_time) 
+
+cmonths <- c("Jan", "Feb", "Mar", "Apr")
+
+tt3 <- ggplot(china_clean, aes(x = tweet_month)) +
+  geom_bar(fill = "#C8102E") +
+  scale_x_continuous(breaks = 1:4, labels = cmonths) +
+  labs(x = "Months", y = "Tweets", title = "China (2021)") +
+  theme_minimal()
+
+
+
+grid.arrange(tt1, tt2, tt3, nrow = 3)
+```
+
+Looking further into the Chinese operation in @fig-accountcreation below, it appears that this flurry of activity was intentional. We see that less than 200 accounts in the Chinese operation were created in 2021, yet all the tweets in the data set started at the beginning of 2021 and continued until they were all presumably taken down in April 2021. In fact over 85 percent of the accounts in the Chinese data set were created in 2019 and 2020 but remained dormant until they started tweeting in early 2021. By contrast, the Russian operation steadily fielded 2 to 3 accounts per year throughout most of the time period spanning 2009 to 2020. Iran's account creation pattern is a bit of a mix between China's approach and Russia's. The Iranian operation acquired the majority of its accounts in 2019 and 2020, but it also maintained a small but growing presence on Twitter dating back to 2009.
+
+```{r, fig.height=7, fig.pos='H'}
+#| echo: false
+#| label: fig-accountcreation
+#| fig-cap-location: top
+#| fig-cap: Distribution of Account Creation Dates by Information Operation
+
+account_year_ru <- russia_clean %>%
+  select(userid, account_creation_date) %>%
+  unique() 
+
+account_year_ru$account_creation_date <- year(account_year_ru$account_creation_date)
+
+ac1 <- ggplot(account_year_ru, aes(x = account_creation_date)) +
+  geom_bar(fill = "#0072CE", width = 0.7) + 
+  scale_x_continuous(n.breaks = 11) +
+  labs(x = "Year", y = "Accounts", title = "Russia (2009-2020)") +
+  theme_minimal()
+
+
+account_year_ir <- iran_clean %>%
+  select(userid, account_creation_date) %>%
+  unique() 
+
+account_year_ir$account_creation_date <- year(account_year_ir$account_creation_date)
+
+ac2 <- ggplot(account_year_ir, aes(x = account_creation_date)) +
+  geom_bar(fill = "#009639", width = 0.7) + 
+  scale_x_continuous(n.breaks = 11) +
+  labs(x = "Year", y = "Accounts", title = "Iran (2009-2020)") +
+  theme_minimal()
+
+account_year_ch <- china_clean %>%
+  select(userid, account_creation_date) %>%
+  unique() 
+
+account_year_ch$account_creation_date <- year(account_year_ch$account_creation_date)
+
+ac3 <- ggplot(account_year_ch, aes(x = account_creation_date)) +
+  geom_bar(fill = "#C8102E") + 
+  labs(x = "Year", y = "Accounts", title = "China (2019-2021)") +
+  theme_minimal()
+
+
+
+grid.arrange(ac1, ac2, ac3, nrow = 3)
+```
+
+Turning to some of the indicators of how these accounts interacted and were interacted with on Twitter, we can see some interesting things with regard to follower and following counts. For the accounts in the Russian IO, the average number of followers was 1,815 while the median was 178.5, indicating a strongly right-skewed distribution. The histograms in @fig-followers below shows the skewness of these follower counts. As can be seen, this skewness is even more pronounced in the Iranian and Chinese networks. The Iranian network had an average of 1,452 followers per account but a median of only 118; likewise. The Chinese network by contrast had an average number of 2.7 followers per account and a median value of 0. Many of the accounts in each data set had hashed usernames; fortunately, the top three accounts, *ValdaiClub*, *bluevvelvet*, and *uwidata*, with the most followers were not hashed in the Russia data set. Together, these three accounts had over 29,000 followers. The top seven accounts in the Iranian networks had unhashed usernames. The top account, *Hispantv*, had 161,512 followers. Accounts *ParadisMireille* and *Atrumphater* were a distance second and third with 11,036 and 6,528 followers, respectively. In the China data set, the top accounts were all hashed values, but the follower counts of the top three were: 485, 385, and 342, respectively; meanwhile, over three quarters of the other accounts in the network had less than two followers each. In each of the three networks, a handful of accounts dominated the others in follower count.
+
+```{r, fig.height=7, fig.pos='H'}
+#| echo: false
+#| label: fig-followers
+#| fig-cap-location: top
+#| fig-cap: Distribution of Twitter Followers by Information Operation
+
+follower_ru <- russia_clean %>%
+  select(user_screen_name, follower_count) %>%
+  unique()
+
+f1 <- ggplot(follower_ru, aes(x = follower_count)) +
+  geom_histogram(binwidth = 115, fill = "#0072CE") +
+  labs(x = "Follower Count", y = "Accounts", title = "Russia") +
+  theme_minimal()
+
+follower_ir <- iran_clean %>%
+  select(user_screen_name, follower_count) %>%
+  unique()
+
+f2 <- ggplot(follower_ir, aes(x = follower_count)) +
+  geom_histogram(binwidth = 1615, fill = "#009639") +
+  labs(x = "Follower Count", y = "Accounts", title = "Iran") +
+  theme_minimal()
+
+follower_ch <- china_clean %>%
+  select(user_screen_name, follower_count) %>%
+  unique() 
+
+f3 <- ggplot(follower_ch, aes(x = follower_count)) +
+  geom_histogram(binwidth = 4.85, fill = "#C8102E") +
+  labs(x = "Follower Count", y = "Accounts", title = "China") +
+  theme_minimal()
+
+
+grid.arrange(f1, f2, f3, nrow = 3)
+```
+
+With the distribution of accounts followed, we again see strong right-skewness appear in each of the three networks, as seen below in @fig-following. The Russian accounts followed 305 other accounts on average, though the median value was smaller at 169.5. Iranian accounts followed 857.5 accounts on average, again with a smaller median of 250. Chinese accounts followed on 15.6 accounts on average, with a median of 7. The top nine Russian accounts here hashed values, though number ten was once again *bluevvelvet*. The top three accounts followed 2,642, 765, and 613 other accounts, respectively. Three quarters of the Russian accounts followed 267 or fewer other accounts. Two of the top Iranian accounts were also familiar names. Account *ParadisMireille* followed 11,652 accounts while *MariequMoi* and *Atrumphater* followed 6,122 and 5,932 accounts, respectively. Three quarters of the Iranian accounts followed 1,035 or fewer other accounts, making Iranian accounts again the most active in terms of both followers and accounts followed. China was again the least active on these metrics. The top three accounts for China were hashed but each followed 749, 571, and 445 other accounts, respectively. Three quarters of the accounts followed 14 or fewer other accounts.
+
+```{r, fig.height=7, fig.pos='H'}
+#| echo: false
+#| label: fig-following
+#| fig-cap-location: top
+#| fig-cap: Distribution of Accounts Followed by the Accounts in Each Information Operation
+
+following_ru <- russia_clean %>%
+  select(user_screen_name, following_count) %>%
+  unique()
+
+f4 <- ggplot(following_ru, aes(x = following_count)) +
+  geom_histogram(binwidth = 26, fill = "#0072CE") +
+  labs(x = "Following Count", y = "Accounts", title = "Russia") +
+  theme_minimal()
+
+following_ir <- iran_clean %>%
+  select(user_screen_name, following_count) %>%
+  unique()
+
+f5 <- ggplot(following_ir, aes(x = following_count)) +
+  geom_histogram(binwidth = 116, fill = "#009639") +
+  labs(x = "Following Count", y = "Accounts", title = "Iran") +
+  theme_minimal()
+
+following_ch <- china_clean %>%
+  select(user_screen_name, following_count) %>%
+  unique() 
+
+f6 <- ggplot(following_ch, aes(x = following_count)) +
+  geom_histogram(binwidth = 7.5, fill = "#C8102E") +
+  labs(x = "Following Count", y = "Accounts", title = "China") +
+  theme_minimal()
+
+
+grid.arrange(f4, f5, f6, nrow = 3)
+```
+
+We next turn our attention to the portion of retweets in each IO's dataset. As can be seen in @tbl-retweets below, the majority of the tweets in each data set were not retweets. The Chinese network contained the lowest number of retweets, with only 10.23 percent of the tweets consisting of retweets. Meanwhile, the Russian network retweeted the most, with almost one third of the tweets in the dataset consisting of retweets.
+
+```{r}
+#| echo: false
+#| label: tbl-retweets
+#| tbl-cap-location: bottom
+#| tbl-cap: Key Network Statistics of Each Network
+
+rrt <- russia_clean %>%
+  summarize("Retweet" = signif(mean(is_retweet), 4) * 100,
+            "Not Retweet" = signif(mean(!is_retweet), 4) * 100)
+
+irt <- iran_clean %>%
+  summarize("Retweet" = signif(mean(is_retweet), 4) * 100,
+            "Not Retweet" = signif(mean(!is_retweet), 4) * 100)
+
+crt <- china_clean %>%
+  summarize("Retweet" = signif(mean(is_retweet), 4) * 100,
+            "Not Retweet" = signif(mean(!is_retweet), 4) * 100)
+
+rt_list <- list(rrt, irt, crt)
+rt <- Reduce(function(x, y) merge(x, y, all = TRUE), rt_list)
+row.names(rt) <- c("China", "Iran", "Russia")
+
+kbl(rt, format = "html", align = "c") %>%
+  kable_classic(full_width = T) %>%
+  row_spec(0, bold = T)
+
+
+```
+
+To conclude this portion of the analysis, we will now turn our attention to propagation metrics. In this sense, amplification metrics are the count, mean, and median of quote tweets, replies, retweets, and likes for the tweets in each IO's data set. These metrics give a sense of how many other Twitter users amplified a particular tweet by sharing it with others or interacting with the tweet in such as a way, such as liking it, that it would be more likely to be served to other users. The visuals of the distributions in this section are not reproduced here due to their extreme right skewness, which persisted even after normalization, rendering discernible visual characteristics nearly impossible. Code to reproduce the skewed visuals is present in the original R script for this project.
+
+The first amplification metric is the number of quote tweets. The Russian network was the least often quoted of the three IOs with an overwhelming majority of tweets in the Russian IO having zero quotes, leading to a median of 0 and a mean of 0.0375. The most popular tweet was quoted 389 times. The second and third most popular were quoted 45 and 29 times, respectively. Accounts *ValdaiClub*, *bluevvelvet*, and *uwidata* appeared several times in the top ten most quoted tweets, suggesting they were more highly amplified than other accounts in the network. The Iranian IO followed a similar pattern of over three quarters of the tweets in the data set having no quotes, leading to a median of 0 and a mean of 0.24. The most popular tweet, however, was quoted 1,155 times. The second and third most popular were quoted 1,109 and 617 times, respectively. Accounts *Hispantv* and *ParadisMireille* appeared several times in the top ten most quoted tweets, again suggesting they were more highly amplified accounts than others in the network. The Chinese network had only slightly more quotes on average than the Russian IO, with over three quarters of the data set having zero quotes, leading to a median of 0 and a mean of 0.03895. The top three most popular accounts wrote tweets that were quoted 88, 84, and 67 times, respectively. While the top quoted account names were all hashed, they do not appear to be the same accounts that were highly followed, suggesting more diffuse interaction with the network.
+
+The second amplification metric is the number of replies to tweets in each data set. In terms of replies, the Russian network was in the middle of the pack, with a mean of 0.098 replies per tweet and a median of 0, again suggesting an extreme right skew that was supported by over three-quarters of the tweets having no replies. The most replied to tweets were produced by an account with a hashed username, which had 190 replies for one tweet and 85 for another. Account *uwidata* was third with a tweet that had 68 replies. The Iranian IO was again the top network overall. Tweets in the Iranian data set had 0.42 replies per tweet on average and a median of 0. The distribution was right skewed, with three quarters of the tweets having no replies. The most replied to tweet was made by account *78williamjones* and had 2,222 replies. Second and third were hashed user names with 1,385 and 644 replies, respectively. Accounts *ParadisMireille* and *Hispantv* also appeared in the top ten. The Chinese IO was the least replied to network with an average of only 0.006 replies per tweet and a median of 0. The distribution was right skewed, with three quarters of tweets having zero replies. The top three most replied to tweets were all from accounts with hashed usernames, each having only 3 replies.
+
+The third amplification metric is the number of retweets to each tweet in the data sets. The Russian IO was again in the middle of the pack, having 0.48 retweets per tweet on average and a median of 0. The data were again right skewed, with three quarters of the tweets having no retweets. The top three most retweeted tweets garnered 264; 221; and 143 retweets, respectively. Account *uwidata* appeared multiple times in the top ten and *ValdaiClub* appeared once. The Iranian IO was again the top with the most retweets per tweet at 5.6 on average and a median of 0. The data set was still right skewed but the third quartile value was 4 retweets, instead of 0. The top three tweets, each from hashed username accounts, received 26,269; 9,967; and 4,503 retweets, respectively. Accounts *Hispantv* and *ParadisMireille* also appeared in the top ten two and three times, respectively. The Chinese IO was again the least interacted with in terms of retweets, receiving an average of only 0.004 retweets per tweet and a median of 0. The third quartile value was 0, and the top tweets only garnered 10, 7, and 6 retweets, respectively, each from the same hashed username account.
+
+The last amplification metric is the number of likes to each tweet in the data sets. The Russian IO was again middle of pack. The tweets in the data set received on average 0.54 likes per tweet with a median of 0. The third quartile value was 0, suggesting another heavy right skew. The top ten most liked tweets were dominated by three accounts, one hashed username account (seven times), *uwidata*, and *ValdaiClub*. The top three most liked tweets had 923; 331; and 250 likes, respectively. The Iranian IO was again the most interacted with in terms of likes. On average, tweets received 5.19 likes per tweet with a median of 0. The third quartile value was 2, suggesting right skew. Each of the top ten most liked tweets were hashed username accounts. The top three tweets received 63,863; 18,145; and 12,618 likes, respectively. The Chinese IO had the fewest likes with an average of 0.02 likes per tweet and a median of 0. The data were right skewed, with the third quartile value of 0. The top three tweets received 43, 24, and 19 likes, respectively.
+
+# Key Takeaways
+
+There are several important points to be learned from the analysis of these three IO networks.
+
+-   With the exception of China, which is somewhat newer to the externally-facing IO space, accounts used by information operations are generally created and actively tweeting long before they are used in a coordinated, inauthentic method that results in the detection of an information operation. This increases the time horizon that other users can come in contact with material from these accounts.
+
+    -   It should be noted, however, that often IO accounts go about building a following through sharing relatively harmless material, to make the account appear genuine, before it switches to spreading mis/disinformation. This could be a part of a long-term strategy by the actor or simply because old accounts were commandeered by the IO.
+
+-   Virality was a key theme in both the Iranian and Russia operations. Most accounts saw little engagement, but a few accounts enjoyed some viral success, which appears to have exhibited some scaling behavior causing these accounts to attract almost all the attention while the rest languished. This produced extreme skews across numerous metrics where a handful of accounts enjoyed all the success, which likely fed further interactions with those accounts, further bolstering the numbers of subsequent tweets from those select few accounts.
+
+-   Having more accounts in an operation does not always translate to a greater chance of virality. China fielded 66 times more accounts than Russia and over eight times as many accounts as Iran, yet it most likely reached fewer people across all of its accounts compared to the top Iranian account.
+
+-   Speaking of top accounts, the Iranian network likely reached the largest amount of people. While overall impression data is not available, it would not be implausible for the Iranian network to have reached hundreds of thousands of people, given that its most followed account had over 100,000 followers and individual tweets amassed well over 10,000 tweets on numerous occasions.
+
+    -   It is clear that the Iranian network positioned itself well to capitalize on the viral potential of social media. While most of the accounts still saw little interaction, the accounts that did capture attention captured it big and translated that into high follower counts, ensuring continued exposure of the propaganda.
+
+    -   Further analysis will hopefully reveal some of what enabled this virality.
+
+-   By contrast with Iran, the Chinese IO was much more diffuse in terms of how Twitter users interacted with it. Accounts with the highest followers, were often not the accounts with the highest amplification metrics. Accounts that were high in one amplification metric were often not in the top ten in others. This diffusion may have contributed to the overall lack of virality present across the IO's content, which leads me to estimate that it likely only reached users in the thousands.
+
+-   The Russian IO likely yielded a low-to-moderate return on investment for the Kremlin. From previous research by Thomas Rid, we know that prior IRA operations were costly around the clock and reached relatively few Americans---it was the subsequent "Russia investigation" that brought more eyes to IRA propaganda than the original IO itself [@rid2020]. Thus, Russia likely only fielded 24 accounts because they were expensive to operate. This may explain why the Russian network retweeted content more often than the other two IOs. I estimate, based off follower counts topping out in the low thousands and amplification metrics in the hundreds, that the Russian operation likely only reached users in the low tens of thousands.
+
+# Conclusion
+
+The scalability that appears to be present in the IO networks analyzed here showcases the importance of quickly detecting and removing malign actors from social media platforms. Accounts or tweets that go viral at the scale seen in the Iranian data set could easily be amplified even further by the other accounts in the network, pushing that material over the edge of what is known as the breakout scale. The breakout scale was proposed by Ben Nimmo in a 2020 report published by the Brookings Institution. [In the report](https://www.brookings.edu/research/the-breakout-scale-measuring-the-impact-of-influence-operations/), Nimmo lays out a framework for analyzing an IO's reach, which culminates in the IO escaping the original platform it was hosted on to spread to other platforms and ultimate across mediums, eventually reaching mainstream audiences. If the Iranian network had tweets seen by a prominent influencer who then retweeted it, the IO could easily have catapulted into the mainstream view.
+
+This analysis is only the first of many possible avenues of further research. From just the data sets used in this report, four additional research projects are currently planned:
+
+-   First, are there similarities or differences between each operation when conducting a social network analysis? Furthermore, if data from a baseline network of general, legitimate Twitter conversations about some random topic were introduced to the analysis, would there be statistically significant differences discernible between the IO networks and the baseline?
+
+-   Second, using the same networks, what would happen if I combined the three IO networks together and also combined the two baseline networks together to compare that way. How would the network structure of the unified IO network evolve? Would overlap or common nodes make themselves apparent? Would there be important nodes that would stand out as connections between the three IOs? Would I find similar statistical results on the networked metrics?
+
+-   Third, what would a text mining and sentiment analysis of the hashtags and tweet text in the IOs reveal? If a text-based analysis of IO networks was introduced, would that enhance possible detection of IO networks? Are there similar TTPs in terms of how language and hashtags are used across the IOs?
+
+-   Fourth, is it possible to split each IO and baseline data set, train an algorithm on one half of each of the IO networks and some baseline noise, and then combine the remaining halves into one large test network and see if the model can detect the IO sub-networks?
+
+Beyond these future projects, do the results discussed in this report hold across other IOs, or do evolving TTPs inhibit the ability to produce generalizable results? Additionally, while conducting the descriptive analysis of each of the IO networks, one additional question was asked that could not be answered without access to internal Twitter data---"with regard to overall reach of each information operation, how many people were these tweets served to?" Such a question could be an area of further study for researchers that can gain access to such impression data through a partnership with Twitter, perhaps.
+
+# References
+
+::: {#refs}
+:::
+
+# About the Author {.appendix}
+
+Cody Wilson is a researcher focused on solving societal problems, particularly those created or exacerbated by modern and emerging technologies, through the application of research and data analysis. He is currently a student in Google's Data Analytics Professional Certification program, which concludes with a capstone analytics project that this report serves to fulfill. He has worked as a full-time national security analyst and consultant at Valens Global and a volunteer research analyst focusing on terrorism and radicalization with the virtual think tank NextGen 5.0. He holds a master's degree in global studies and international relations, with a concentration in conflict resolution, from Northeastern University. Cody previously earned a bachelor's degree in political science with a concentration in international relations from the University of California, Los Angeles.
+
+As an undergraduate, he completed a capstone research project focused on Iran's nuclear program, and in graduate school he completed two additional significant research projects, one on the recruitment of women by ISIS and the other on the drivers of, and policy responses to, the decades-long conflict in Somalia. After graduate school, Cody produced a study examining the relationship between online terrorist propaganda and real-world terrorist activity. During his time at Valens Global, Cody contributed to reports used in federal litigation, helped execute eight successful wargames, designed a cybersecurity-focused tabletop exercise, produced technical and analytical reports for the U.S. government, and co-authored a study putting forth a framework for better understanding grey zone information operations.
